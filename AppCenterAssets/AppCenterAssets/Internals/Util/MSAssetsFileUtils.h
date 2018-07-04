@@ -58,5 +58,12 @@
  */
 + (BOOL)fileAtPathExists:(NSString *)filePath;
 
+/**
+ * Deletes directory located by the following path.
+ *
+ * @param directoryPath path to directory to be deleted. Can't be <code>null</code>.
+ * @return A flag indicating success or fail.
+ */
++ (BOOL)deleteDirectoryAtPath:(NSString *)directoryPath;
 
 @end
