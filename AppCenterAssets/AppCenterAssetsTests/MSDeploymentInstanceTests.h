@@ -22,6 +22,7 @@ static NSString *const kMSPackageHash = @"00000000-1111-0000-1111-000000000000";
                        andHandler:(void (^ __nullable)())handler
                  andCancelHandler:(void (^ __nullable)())cancelHandler;
 - (void) rollbackPackage;
+- (void)reportStatus:(MSAssetsDeploymentStatusReport *)report;
 
 @end
 

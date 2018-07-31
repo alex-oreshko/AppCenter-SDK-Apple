@@ -86,9 +86,9 @@ static BOOL isRunningBinaryVersion = NO;
 
         _updateUtilities = [[MSAssetsUpdateUtilities alloc] initWithSettingManager:_settingManager];
 
-        NSString *appNameWithDeploymentKey = [appName stringByAppendingPathComponent:_deploymentKey];
+        NSString *appNameWithDeploymentKey = [_appName stringByAppendingPathComponent:_deploymentKey];
 
-        _updateManager = [[MSAssetsUpdateManager alloc] initWithUpdateUtils:_updateUtilities andBaseDir:baseDir andAppName:appNameWithDeploymentKey];
+        _updateManager = [[MSAssetsUpdateManager alloc] initWithUpdateUtils:_updateUtilities andBaseDir:baseDir andAppFolder:appNameWithDeploymentKey];
         
         _acquisitionManager = [[MSAssetsAcquisitionManager alloc] init];
         _telemetryManager = [[MSAssetsTelemetryManager alloc] initWithSettingManager:_settingManager];
@@ -635,11 +635,6 @@ static BOOL isRunningBinaryVersion = NO;
         }
         [strongSelf notifyAboutSyncStatusChange:MSAssetsSyncStatusUpdateInstalled instanceState:[strongSelf instanceState]];
         [[strongSelf instanceState] setSyncInProgress:NO];
-        if (resolvedInstallMode == MSAssetsInstallModeImmediate && [syncOptions shouldRestart]) {
-            [[strongSelf restartManager] restartAppOnlyIfUpdateIsPending:NO];
-        } else {
-            [[strongSelf restartManager] clearPendingRestarts];
-        }
         
         if (resolvedInstallMode == MSAssetsInstallModeImmediate) {
             if ([syncOptions shouldRestart]) {

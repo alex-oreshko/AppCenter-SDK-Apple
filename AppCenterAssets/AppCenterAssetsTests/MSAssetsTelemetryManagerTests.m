@@ -48,7 +48,6 @@ static NSString *const kAppVersion = @"1.6.2";
 
 - (void)testBuildBinaryUpdateReportWithAppVersionNoStatusReportidentifier {
     
-    MSAssetsStatusReportIdentifier *statusReportIdentifier = 
     OCMStub([_mockSettingManager getPreviousStatusReportIdentifier]).andReturn(nil);
     MSAssetsDeploymentStatusReport *deploymentStatusReport = [self.sut buildBinaryUpdateReportWithAppVersion:kAppVersion];
     XCTAssertNotNil(deploymentStatusReport);
