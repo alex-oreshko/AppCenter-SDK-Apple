@@ -93,5 +93,36 @@ static NSString *const UpdateMetadataFile = @"app.json";
     XCTAssertNil(error);
 }
 
+-(void)testGetPackageWithWrongHash {
+    NSError *error = nil;
+    MSAssetsLocalPackage *package = [self.sut getPackage:@"wrongHash" error:&error];
+    XCTAssertNil(package);
+    XCTAssertNil(error); // Should we create error if package not found?
+}
+
+-(void)testGetPackageWithCurrentPackageHash {
+    NSError *error = nil;
+    MSAssetsLocalPackage *package = [self.sut getPackage:@kCurrentPackageHash error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(package);
+    XCTAssertEqualObjects(package.deploymentKey, @kDeploymentKey);
+    XCTAssertEqualObjects(package.packageHash, @kCurrentPackageHash);
+}
+
+-(void)testGetPackageWithPreviousPackageHash {
+    NSError *error = nil;
+    MSAssetsLocalPackage *package = [self.sut getPackage:@kPreviousPackageHash error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(package);
+    XCTAssertEqualObjects(package.deploymentKey, @kDeploymentKey);
+    XCTAssertEqualObjects(package.packageHash, @kPreviousPackageHash);
+}
+
+- (void)testGetPackageFolderPath {
+    NSString *expectedPath = [kAppFolder stringByAppendingPathComponent:@kCurrentPackageHash];
+    NSString *path = [self.sut getPackageFolderPath:@kCurrentPackageHash];
+    XCTAssertEqualObjects(path, expectedPath);
+}
+
 
 @end
