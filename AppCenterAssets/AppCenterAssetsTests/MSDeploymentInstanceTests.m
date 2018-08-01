@@ -413,7 +413,7 @@
     XCTAssertNil(error);
 }
 
-- (MSAssetsPackage *)getAssetsPackageDictionary {
+- (NSDictionary *)getAssetsPackageDictionary {
     NSDictionary *packageDict = [[NSDictionary alloc] initWithObjectsAndKeys:
                                  @"1.0", @"appVersion",
                                  @"X0s3Jrpp7TBLmMe5x_UG0b8hf-a8SknGZWL7Q", @"deploymentKey",
@@ -456,7 +456,7 @@
 - (void)testNotifyApplicationIsRunningBinaryVersion {
     id assetsMock = OCMPartialMock(self.sut);
     [[assetsMock instanceState] setIsRunningBinaryVersion:YES];
-    /*
+    
     NSDictionary *assetsPackage = [self getAssetsPackageDictionary];
     NSDictionary *dictIn = [[NSDictionary alloc] initWithObjectsAndKeys:
                             @"clientUniqueIdData", @"clientUniqueId",
@@ -469,11 +469,11 @@
                             assetsPackage, @"package",
                             nil];
         MSAssetsDeploymentStatusReport *deploymentStatusReport = [[MSAssetsDeploymentStatusReport alloc] initWithDictionary:dictIn];
-    id mockSettingManager = OCMClassMock([MSAssetsSettingManager class]);
-    OCMStub([mockSettingManager buildBinaryUpdateReportWithAppVersion:(NSString *)[OCMArg anyPointer]]).andReturn(deploymentStatusReport);*/
+    id mockTelemetryManager = OCMClassMock([MSAssetsTelemetryManager class]);
+    OCMStub([mockTelemetryManager buildBinaryUpdateReportWithAppVersion:OCMOCK_ANY]).andReturn(deploymentStatusReport);
+    OCMStub([assetsMock telemetryManager]).andReturn(mockTelemetryManager);
     [assetsMock notifyApplicationReady];
-    OCMReject([assetsMock reportStatus:OCMOCK_ANY]);
-}
-
-
+    OCMVerify([assetsMock reportStatus:[OCMArg checkWithBlock:^BOOL(id value) {
+        return ([[value previousDeploymentKey] isEqualToString:deploymentStatusReport.previousDeploymentKey]) ? YES : NO;
+    }]]);}
 @end
