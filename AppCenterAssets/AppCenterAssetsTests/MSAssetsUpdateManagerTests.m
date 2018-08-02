@@ -17,13 +17,6 @@ static NSString *const UpdateMetadataFile = @"app.json";
 static NSString *const kSampleZip = @"sample_package.zip";
 static NSString *const UnzippedFolderName = @"unzipped";
 
-
-@interface MSAssetsUpdateManager (Test)
-
-- (NSString *)getMSAssetsPath;
-
-@end
-
 @interface MSAssetsUpdateManagerTests : XCTestCase
 
 @property (nonatomic) MSAssetsUpdateManager *sut;
@@ -45,8 +38,6 @@ static NSString *const UnzippedFolderName = @"unzipped";
     _mockUpdateUtils = [[MSAssetsUpdateUtilities alloc] initWithSettingManager:_mockSettingManager];
     
     self.sut = [[MSAssetsUpdateManager alloc] initWithUpdateUtils:_mockUpdateUtils andBaseDir:nil andAppFolder:kAppFolder];
-    
-    _fullAssetsPath = [[[MSUtility appCenterDirectoryURL] absoluteString] stringByAppendingPathComponent:[self.sut getMSAssetsPath]];
     
     const char *strStatusFile = "{\n  \"currentPackage\" : \""kCurrentPackageHash"\",\n  \"previousPackage\" : \""kPreviousPackageHash"\"\n}";
     NSString *statusFileText = [[NSString alloc] initWithCString:strStatusFile encoding:NSUTF8StringEncoding];
