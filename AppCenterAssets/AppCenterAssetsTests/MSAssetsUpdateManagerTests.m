@@ -3,6 +3,8 @@
 #import "MSAssetsUpdateManager.h"
 #import "MSAssetsSettingManager.h"
 #import "MSUtility+File.h"
+#import "MSAssetsErrors.h"
+
 
 #define kCurrentPackageHash "cda3a8949bedc4bd4030b6f8121d6b7dd04bbe98868528d9f3c666e3b3da7f4d"
 #define kPreviousPackageHash "6e20cce89d39a58041068e1afc998ac2ea1d6f9cf866beea8d34717de8123e5e"
@@ -12,15 +14,25 @@ static NSString *const kAppFolder = @"Assets/"kDeploymentKey"";
 static NSString *const DownloadFileName = @"download.zip";
 static NSString *const StatusFile = @"codepush.json";
 static NSString *const UpdateMetadataFile = @"app.json";
+static NSString *const kSampleZip = @"sample_package.zip";
+static NSString *const UnzippedFolderName = @"unzipped";
 
+
+@interface MSAssetsUpdateManager (Test)
+
+- (NSString *)getMSAssetsPath;
+
+@end
 
 @interface MSAssetsUpdateManagerTests : XCTestCase
 
 @property (nonatomic) MSAssetsUpdateManager *sut;
 @property id mockSettingManager;
 @property id mockUpdateUtils;
+@property NSString *fullAssetsPath;
 
 @end
+
 
 @implementation MSAssetsUpdateManagerTests
 
@@ -34,6 +46,8 @@ static NSString *const UpdateMetadataFile = @"app.json";
     
     self.sut = [[MSAssetsUpdateManager alloc] initWithUpdateUtils:_mockUpdateUtils andBaseDir:nil andAppFolder:kAppFolder];
     
+    _fullAssetsPath = [[[MSUtility appCenterDirectoryURL] absoluteString] stringByAppendingPathComponent:[self.sut getMSAssetsPath]];
+    
     const char *strStatusFile = "{\n  \"currentPackage\" : \""kCurrentPackageHash"\",\n  \"previousPackage\" : \""kPreviousPackageHash"\"\n}";
     NSString *statusFileText = [[NSString alloc] initWithCString:strStatusFile encoding:NSUTF8StringEncoding];
     [self createFile:StatusFile inPath:kAppFolder withText:statusFileText];
@@ -46,6 +60,9 @@ static NSString *const UpdateMetadataFile = @"app.json";
     NSString *previousUpdateMetadata = [[NSString alloc] initWithCString:strPreviousUpdateMetadata encoding:NSUTF8StringEncoding];
     [self createFile:UpdateMetadataFile inPath:[kAppFolder stringByAppendingPathComponent:@kPreviousPackageHash] withText:previousUpdateMetadata];
     
+    NSString* zipPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"sample_package" ofType:@"zip"];
+    NSData *data = [NSData dataWithContentsOfFile:zipPath];
+    [self createFile:kSampleZip inPath:@"" withData:data];
 }
 
 - (void)tearDown {
@@ -55,6 +72,10 @@ static NSString *const UpdateMetadataFile = @"app.json";
 
 - (void)createFile:(NSString *)fileName inPath:(NSString *)path withText:(NSString *)text {
     [MSUtility createFileAtPathComponent:[path stringByAppendingPathComponent:fileName] withData:[text dataUsingEncoding:NSUTF8StringEncoding] atomically:YES forceOverwrite:YES];
+}
+
+- (void)createFile:(NSString *)fileName inPath:(NSString *)path withData:(NSData *)data {
+    [MSUtility createFileAtPathComponent:[path stringByAppendingPathComponent:fileName] withData:data atomically:YES forceOverwrite:YES];
 }
 
 - (void)testMSAssetsUpdateManagerInitialization {
@@ -122,6 +143,25 @@ static NSString *const UpdateMetadataFile = @"app.json";
     NSString *expectedPath = [kAppFolder stringByAppendingPathComponent:@kCurrentPackageHash];
     NSString *path = [self.sut getPackageFolderPath:@kCurrentPackageHash];
     XCTAssertEqualObjects(path, expectedPath);
+}
+
+- (void)testUnzipPackageNoFile {
+    NSError *error = nil;
+    [self.sut unzipPackage:@"noSuchFile" error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, kMSACFileErrorCode);
+}
+
+- (void)testUnzipPackage {
+    NSError *error = nil;
+    [self.sut unzipPackage:kSampleZip error:&error];
+    XCTAssertNil(error);
+    NSString *unzippedPath = [kAppFolder stringByAppendingPathComponent:UnzippedFolderName];
+
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:unzippedPath]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:@"cp_assets"]]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:@"cp_assets/square.png"]]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:@"cp_assets/square+.png"]]);
 }
 
 

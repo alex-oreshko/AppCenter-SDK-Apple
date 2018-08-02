@@ -224,6 +224,9 @@
 		4BC7862220FD17E5009A6E51 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4BC7861F20FD17E4009A6E51 /* Info.plist */; };
 		4BE3179520F3561E006AEE79 /* MSAlertController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BE3179320F3561D006AEE79 /* MSAlertController.h */; };
 		4BE3179620F3561E006AEE79 /* MSAlertController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BE3179420F3561D006AEE79 /* MSAlertController.m */; };
+		4BED648321132A3B00FBC803 /* sample_package.zip in Resources */ = {isa = PBXBuildFile; fileRef = 4BED648221132A3B00FBC803 /* sample_package.zip */; };
+		4BED648421132A3B00FBC803 /* sample_package.zip in Resources */ = {isa = PBXBuildFile; fileRef = 4BED648221132A3B00FBC803 /* sample_package.zip */; };
+		4BED648521132A3B00FBC803 /* sample_package.zip in Resources */ = {isa = PBXBuildFile; fileRef = 4BED648221132A3B00FBC803 /* sample_package.zip */; };
 		6E0684381D35A3B900A8CC6C /* OCHamcrestIOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E0684371D35A3B900A8CC6C /* OCHamcrestIOS.framework */; };
 		A31B561920DD093700D81CA1 /* MSAssetsDeploymentInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = A31B561820DD093700D81CA1 /* MSAssetsDeploymentInstance.m */; };
 		A31B562820DD3FA000D81CA1 /* MSAssetsBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = A31B562720DD3FA000D81CA1 /* MSAssetsBuilder.m */; };
@@ -464,6 +467,7 @@
 		4BE3179320F3561D006AEE79 /* MSAlertController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSAlertController.h; path = ../../Vendor/iOS/MSAlertController/MSAlertController.h; sourceTree = "<group>"; };
 		4BE3179420F3561D006AEE79 /* MSAlertController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSAlertController.m; path = ../../Vendor/iOS/MSAlertController/MSAlertController.m; sourceTree = "<group>"; };
 		4BE5528320E4D5EF00620DB1 /* MSAssetsDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSAssetsDelegate.h; sourceTree = "<group>"; };
+		4BED648221132A3B00FBC803 /* sample_package.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = sample_package.zip; sourceTree = "<group>"; };
 		6E0684371D35A3B900A8CC6C /* OCHamcrestIOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OCHamcrestIOS.framework; path = ../../Vendor/iOS/OCHamcrest/OCHamcrestIOS.framework; sourceTree = "<group>"; };
 		A31B561820DD093700D81CA1 /* MSAssetsDeploymentInstance.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSAssetsDeploymentInstance.m; sourceTree = "<group>"; };
 		A31B562720DD3FA000D81CA1 /* MSAssetsBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSAssetsBuilder.m; sourceTree = "<group>"; };
@@ -1040,6 +1044,7 @@
 		E85547D61D2D6723002DF6E2 /* AppCenterAssetsTests */ = {
 			isa = PBXGroup;
 			children = (
+				4BED648221132A3B00FBC803 /* sample_package.zip */,
 				4B887CD5211082F800E207BB /* MSAssetsUpdateManagerTests.m */,
 				4B110713210AF5E4005CDC56 /* MSAssetsTelemetryManagerTests.m */,
 				4BC08C522105FC4E00838385 /* MSAssetsUpdateUtilitiesTests.m */,
@@ -1294,6 +1299,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BED648521132A3B00FBC803 /* sample_package.zip in Resources */,
 				4BC7862220FD17E5009A6E51 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1302,6 +1308,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BED648421132A3B00FBC803 /* sample_package.zip in Resources */,
 				4BC7862120FD17E5009A6E51 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1310,6 +1317,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BED648321132A3B00FBC803 /* sample_package.zip in Resources */,
 				4BC7862020FD17E5009A6E51 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
