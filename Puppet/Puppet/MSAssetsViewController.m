@@ -142,11 +142,11 @@
 }
 
 - (void)checkForUpdate {
-    [self.assetsDeployment checkForUpdate:nil];
+    [self.assetsDeployment checkForUpdate:@kDeploymentKey];
 }
 
 - (void)checkForUpdate2 {
-    [self.assetsDeployment2 checkForUpdate:nil];
+    [self.assetsDeployment2 checkForUpdate:@kDeploymentKey2];
 }
 
 - (void)didReceiveRemotePackageOnCheckForUpdate:(MSAssetsRemotePackage *)package {
