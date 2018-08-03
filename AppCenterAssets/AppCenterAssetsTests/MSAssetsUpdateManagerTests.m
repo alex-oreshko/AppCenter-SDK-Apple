@@ -166,6 +166,8 @@ static NSString *const DiffManifestFileName = @"hotcodepush.json";
     
     // merging data
     NSString *entryPoint = [self.sut mergeDiffWithNewUpdateFolder:newUpdateFolderPath newUpdateMetadataPath:newUpdateMetadataPath newUpdateHash:packageHash publicKeyString:nil expectedEntryPointFileName:nil error:&error];
+    
+    // check results
     XCTAssertNil(entryPoint);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, kMSACSignatureVerificationErrorCode);
@@ -181,6 +183,9 @@ static NSString *const DiffManifestFileName = @"hotcodepush.json";
     
     // merging data
     NSString *entryPoint = [self.sut mergeDiffWithNewUpdateFolder:newUpdateFolderPath newUpdateMetadataPath:newUpdateMetadataPath newUpdateHash:@kUpdatePackageHash publicKeyString:nil expectedEntryPointFileName:nil error:&error];
+    
+    
+    // check results
     XCTAssertNil(entryPoint);
     XCTAssertNil(error);
     NSString *updatePath = [kAppFolder stringByAppendingPathComponent:@kUpdatePackageHash];
