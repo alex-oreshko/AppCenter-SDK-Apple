@@ -5,17 +5,20 @@
 #import "MSUtility+File.h"
 #import "MSAssetsErrors.h"
 
-
-#define kCurrentPackageHash "cda3a8949bedc4bd4030b6f8121d6b7dd04bbe98868528d9f3c666e3b3da7f4d"
-#define kPreviousPackageHash "6e20cce89d39a58041068e1afc998ac2ea1d6f9cf866beea8d34717de8123e5e"
+#define kAppName "Assets"
+#define kPreviousPackageHash "cda3a8949bedc4bd4030b6f8121d6b7dd04bbe98868528d9f3c666e3b3da7f4d"
+#define kCurrentPackageHash "6e20cce89d39a58041068e1afc998ac2ea1d6f9cf866beea8d34717de8123e5e"
+#define kUpdatePackageHash "dfefbba8dd9e1b651f038e9b50a0a2754b134157f2640e9a2a4d026494e11959"
 #define kDeploymentKey "X0s3Jrpp7TBLmMe5x_UG0b8hf-a8SknGZWL7Q"
 
-static NSString *const kAppFolder = @"Assets/"kDeploymentKey"";
+static NSString *const kAppFolder = @""kAppName"/"kDeploymentKey"";
+static NSString *const kAssetsSampleDataZip = @"AssetsSampleData.zip";
 static NSString *const DownloadFileName = @"download.zip";
 static NSString *const StatusFile = @"codepush.json";
 static NSString *const UpdateMetadataFile = @"app.json";
-static NSString *const kSampleZip = @"sample_package.zip";
 static NSString *const UnzippedFolderName = @"unzipped";
+static NSString *const DiffManifestFileName = @"hotcodepush.json";
+
 
 @interface MSAssetsUpdateManagerTests : XCTestCase
 
@@ -39,26 +42,23 @@ static NSString *const UnzippedFolderName = @"unzipped";
     
     self.sut = [[MSAssetsUpdateManager alloc] initWithUpdateUtils:_mockUpdateUtils andBaseDir:nil andAppFolder:kAppFolder];
     
-    const char *strStatusFile = "{\n  \"currentPackage\" : \""kCurrentPackageHash"\",\n  \"previousPackage\" : \""kPreviousPackageHash"\"\n}";
-    NSString *statusFileText = [[NSString alloc] initWithCString:strStatusFile encoding:NSUTF8StringEncoding];
-    [self createFile:StatusFile inPath:kAppFolder withText:statusFileText];
-    
-    const char *strCurrentUpdateMetadata = "{\n  \"_isDebugOnly\" : false,\n  \"appVersion\" : \"1.6.2\",\n  \"binaryModifiedTime\" : \"1533114348351\",\n  \"packageHash\" :  \""kCurrentPackageHash"\",\n  \"isPending\" : true,\n  \"deploymentKey\" : \""kDeploymentKey"\",\n  \"label\" : \"v33\",\n  \"isFirstRun\" : false,\n  \"failedInstall\" : false,\n  \"isMandatory\" : false\n}";
-    NSString *currentUpdateMetadata = [[NSString alloc] initWithCString:strCurrentUpdateMetadata encoding:NSUTF8StringEncoding];
-    [self createFile:UpdateMetadataFile inPath:[kAppFolder stringByAppendingPathComponent:@kCurrentPackageHash] withText:currentUpdateMetadata];
-    
-    const char *strPreviousUpdateMetadata = "{\n  \"_isDebugOnly\" : false,\n  \"appVersion\" : \"1.6.2\",\n  \"binaryModifiedTime\" : \"1533042551596\",\n  \"packageHash\" :  \""kPreviousPackageHash"\",\n  \"isPending\" : true,\n  \"deploymentKey\" : \""kDeploymentKey"\",\n  \"label\" : \"v32\",\n  \"isFirstRun\" : false,\n  \"failedInstall\" : false,\n  \"isMandatory\" : false\n}";
-    NSString *previousUpdateMetadata = [[NSString alloc] initWithCString:strPreviousUpdateMetadata encoding:NSUTF8StringEncoding];
-    [self createFile:UpdateMetadataFile inPath:[kAppFolder stringByAppendingPathComponent:@kPreviousPackageHash] withText:previousUpdateMetadata];
-    
-    NSString* zipPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"sample_package" ofType:@"zip"];
+    // Here we unzip our sample data. This is a copy of MSAssets folder for real sample app Puppet
+    NSString* zipPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"AssetsSampleData" ofType:@"zip"];
     NSData *data = [NSData dataWithContentsOfFile:zipPath];
-    [self createFile:kSampleZip inPath:@"" withData:data];
+    [self createFile:kAssetsSampleDataZip inPath:@"" withData:data];
+    BOOL result = [MSUtility unzipFileAtPathComponent:kAssetsSampleDataZip toPathComponent:@""];
+    if (!result)
+        NSLog(@"Error during set up for MSAssetsUpdateManager tests");
+    [MSUtility deleteItemForPathComponent:kAssetsSampleDataZip];
+    [MSUtility deleteItemForPathComponent:@"__MACOSX"];
+    if (!result)
+        NSLog(@"Error during set up for MSAssetsUpdateManager tests");
+
 }
 
 - (void)tearDown {
     [super tearDown];
-    [MSUtility deleteItemForPathComponent:kAppFolder];
+    [MSUtility deleteItemForPathComponent:@kAppName];
 }
 
 - (void)createFile:(NSString *)fileName inPath:(NSString *)path withText:(NSString *)text {
@@ -145,14 +145,77 @@ static NSString *const UnzippedFolderName = @"unzipped";
 
 - (void)testUnzipPackage {
     NSError *error = nil;
-    [self.sut unzipPackage:kSampleZip error:&error];
-    XCTAssertNil(error);
     NSString *unzippedPath = [kAppFolder stringByAppendingPathComponent:UnzippedFolderName];
-
+    [self.sut unzipPackage:[kAppFolder stringByAppendingPathComponent:DownloadFileName] error:&error];
+    XCTAssertNil(error);
     XCTAssertTrue([MSUtility fileExistsForPathComponent:unzippedPath]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:DiffManifestFileName]]);
     XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:@"cp_assets"]]);
     XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:@"cp_assets/square.png"]]);
-    XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:@"cp_assets/square+.png"]]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[unzippedPath stringByAppendingPathComponent:@"cp_assets/square-.png"]]);
+}
+
+- (void)testMergeDiffWithNewUpdateWrongHash {
+    // prepare data to merge
+    NSError *error = nil;
+    NSString *unzippedPath = [kAppFolder stringByAppendingPathComponent:UnzippedFolderName];
+    [self.sut unzipPackage:[kAppFolder stringByAppendingPathComponent:DownloadFileName] error:&error];
+    NSString *packageHash = @"fakeHash";
+    NSString *newUpdateFolderPath = [self.sut getPackageFolderPath:packageHash];
+    NSString *newUpdateMetadataPath = [newUpdateFolderPath stringByAppendingPathComponent:UpdateMetadataFile];
+    
+    // merging data
+    NSString *entryPoint = [self.sut mergeDiffWithNewUpdateFolder:newUpdateFolderPath newUpdateMetadataPath:newUpdateMetadataPath newUpdateHash:packageHash publicKeyString:nil expectedEntryPointFileName:nil error:&error];
+    XCTAssertNil(entryPoint);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, kMSACSignatureVerificationErrorCode);
+}
+
+- (void)testMergeDiffWithNewUpdate {
+    // prepare data to merge
+    NSError *error = nil;
+    NSString *unzippedPath = [kAppFolder stringByAppendingPathComponent:UnzippedFolderName];
+    [self.sut unzipPackage:[kAppFolder stringByAppendingPathComponent:DownloadFileName] error:&error];
+    NSString *newUpdateFolderPath = [self.sut getPackageFolderPath:@kUpdatePackageHash];
+    NSString *newUpdateMetadataPath = [newUpdateFolderPath stringByAppendingPathComponent:UpdateMetadataFile];
+    
+    // merging data
+    NSString *entryPoint = [self.sut mergeDiffWithNewUpdateFolder:newUpdateFolderPath newUpdateMetadataPath:newUpdateMetadataPath newUpdateHash:@kUpdatePackageHash publicKeyString:nil expectedEntryPointFileName:nil error:&error];
+    XCTAssertNil(entryPoint);
+    XCTAssertNil(error);
+    NSString *updatePath = [kAppFolder stringByAppendingPathComponent:@kUpdatePackageHash];
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:updatePath]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[updatePath stringByAppendingPathComponent:@"cp_assets"]]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[updatePath stringByAppendingPathComponent:@"cp_assets/square.png"]]);
+    XCTAssertTrue([MSUtility fileExistsForPathComponent:[updatePath stringByAppendingPathComponent:@"cp_assets/square-.png"]]);
+}
+
+- (void)testInstallPackage {
+    // prepare package to install
+    NSError *error = nil;
+    NSString *unzippedPath = [kAppFolder stringByAppendingPathComponent:UnzippedFolderName];
+    [self.sut unzipPackage:[kAppFolder stringByAppendingPathComponent:DownloadFileName] error:&error];
+    NSString *newUpdateFolderPath = [self.sut getPackageFolderPath:@kUpdatePackageHash];
+    NSString *newUpdateMetadataPath = [newUpdateFolderPath stringByAppendingPathComponent:UpdateMetadataFile];
+    NSString *entryPoint = [self.sut mergeDiffWithNewUpdateFolder:newUpdateFolderPath newUpdateMetadataPath:newUpdateMetadataPath newUpdateHash:@kUpdatePackageHash publicKeyString:nil expectedEntryPointFileName:nil error:&error];
+    
+    // installing package
+    error = [self.sut installPackage:@kUpdatePackageHash removePendingUpdate:NO];
+    XCTAssertNil(error);
+    
+    // check if previous package deleted
+    XCTAssertFalse([MSUtility fileExistsForPathComponent:[kAppFolder stringByAppendingPathComponent:@kPreviousPackageHash]]);
+    
+    // check if previous package has changed status from current to previous
+    MSAssetsLocalPackage *previousPackage = [self.sut getPreviousPackage:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(previousPackage);
+    XCTAssertEqualObjects(previousPackage.packageHash, @kCurrentPackageHash);
+    
+    // check if update package has become current package
+    NSString *currentPackageHash = [self.sut getCurrentPackageHash:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(currentPackageHash, @kUpdatePackageHash);
 }
 
 
